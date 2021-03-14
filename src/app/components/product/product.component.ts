@@ -1,7 +1,6 @@
-import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { product } from 'src/app/models/Product'
-import { ProductResponseModel } from "src/app/models/ProductResponseModel";
 import { ProductService } from "src/app/sevices/product.service";
 
 @Component({
@@ -12,18 +11,31 @@ import { ProductService } from "src/app/sevices/product.service";
 export class ProductComponent implements OnInit {
   products: product[] = [];
   dataLoaded=false;
-  constructor(private productservice: ProductService) { }
+  constructor(private productservice: ProductService,
+     private activatedRoute:ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.getProducts();
+    
+    this.activatedRoute.params.subscribe(params=>{
+      if(params["categoryId"])
+      this.getProductsByCategory(params["categoryId"])
+      else
+      this.getProducts()
+    })
+
   }
 
   getProducts() {
-    console.log("1")
     this.productservice.getProducts().subscribe(response => {
         this.products = response.data
         this.dataLoaded=true;
       })
-    console.log("Bitti")
+  }
+
+  getProductsByCategory(categoryId:number) {
+    this.productservice.getProductsByCategory(categoryId).subscribe(response => {
+        this.products = response.data
+        this.dataLoaded=true;
+      })
   }
 }
